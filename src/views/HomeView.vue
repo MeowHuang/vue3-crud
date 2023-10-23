@@ -35,8 +35,8 @@
       <el-table-column prop="phone" label="电话" width="120"/>
       <el-table-column prop="state" label="状态" width="70"/>
       <el-table-column prop="address" label="城市" width="150"/>
-      <el-table-column prop="createTime" label="创建时间" width="180" :formatter="formatCreateDate" />
-      <el-table-column prop="updateTime" label="更新时间" width="180" :formatter="
+      <el-table-column prop="createTime" label="创建时间" width="165" :formatter="formatCreateDate" />
+      <el-table-column prop="updateTime" label="更新时间" width="165" :formatter="
       formatUpdateDate" />
 
       <el-table-column fixed="right" label="操作" width="120">
@@ -478,7 +478,7 @@
 
 <style scoped>
   .table-box {
-    width: 1000px;
+    width: 1300px;
     position: relative;
     top: 10%;
     margin: 0 auto;
