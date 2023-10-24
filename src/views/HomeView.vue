@@ -9,6 +9,7 @@
     <div class="query-box">
       <div class="search-box">
         <el-input class="query-input" v-model="queryInput" @keydown.enter="toSearch" placeholder="请输入查询的内容🔍"/>
+        <el-button type="primary" :icon="Refresh" @click="ResetSearch" style="margin-left: 10px">重置</el-button>
         <el-button type="primary" :icon="Search" @click="toSearch" style="margin-left: 10px">查询</el-button>
       </div>
       <div class="btn-list">
@@ -35,9 +36,9 @@
       <el-table-column prop="phone" label="电话" width="120"/>
       <el-table-column prop="state" label="状态" width="70"/>
       <el-table-column prop="address" label="城市" width="150"/>
-      <el-table-column prop="createTime" label="创建时间" width="165" :formatter="formatCreateDate" />
+      <el-table-column prop="createTime" label="创建时间" width="165" :formatter="formatCreateDate"/>
       <el-table-column prop="updateTime" label="更新时间" width="165" :formatter="
-      formatUpdateDate" />
+      formatUpdateDate"/>
 
       <el-table-column fixed="right" label="操作" width="120">
         <template #default="scope">
@@ -106,7 +107,7 @@
 
   import {onMounted, ref} from "vue";
   import {useStore} from "vuex"
-  import {Delete, Search, Upload} from '@element-plus/icons-vue'
+  import {Delete, Refresh, Search, Upload} from '@element-plus/icons-vue'
   import {getByKeywordAndPage, queryAllByPage, removeUserById, saveOrUpdateUser} from "../http/apis/userApi"
 
   /* 数据 */
@@ -200,8 +201,7 @@
    * 分页查询(看输入框中有无值选择queryAllByPage和getByKeywordAndPage函数
    * @param pageNo
    */
-  const handleCurrentChange = (pageNo) =>
-  {
+  const handleCurrentChange = (pageNo) => {
     tableData.value.splice(0, tableData.value.length);
     if (queryInput.value == null) {
       queryAllByPage({"pageNo": pageNo, "pageSize": pageSize.value}).then(res => {
@@ -268,6 +268,26 @@
       totalPage.value = res.data.data.total
     });
   }
+  /* 重置查询 */
+  const ResetSearch = (event) => {
+    event.preventDefault(); // 阻止默认的回车事件传播
+    queryInput.value = ""; // 重置查询输入为空
+    tableData.value.splice(0, tableData.value.length);
+    queryAllByPage({"pageNo": 1, "pageSize": pageSize.value}).then(res => {
+      if (res.data && res.data.data && res.data.data.list) {
+        store.dispatch("asyncUpdateUser", res.data); // 将响应的数据发送到 store 以进行更新
+        // 遍历数据
+        res.data.data.list.forEach((item, index) => {
+          tableData.value.push(item);
+          //console.log("后台获取到的数据：" + JSON.stringify(item));
+        });
+      } else {
+        console.error("数据结构不正确或缺失必要的属性");
+      }
+      totalPage.value = res.data.data.total;
+    });
+  }
+
 
   /**
    * 格式日期
@@ -294,7 +314,7 @@
       return 'Invalid Date Format';
     }
   };
-   const formatUpdateDate = (data) => {
+  const formatUpdateDate = (data) => {
     if (!data || !data.updateTime) return 'No date provided';
     try {
       const date = new Date(data.updateTime);
@@ -314,10 +334,6 @@
       return 'Invalid Date Format';
     }
   };
-
-
-
-
 
 
   /**
