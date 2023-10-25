@@ -24,4 +24,4 @@
 
 技术栈：SpringBoot+MyBatis-Plus+Redis+Vue+Element-Plus
 
-![easedemocrud](https://cdn.jsdelivr.net/gh/MeowHuang/image/img202310240319868.png)
+![easedemocrud](https://cdn.jsdelivr.net/gh/MeowHuang/image/img202310252004970.png)
