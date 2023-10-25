@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.github.pagehelper.PageInfo;
 import com.hhj.study.domain.User;
 
+import java.io.Serializable;
 import java.util.List;
 
 public interface UserService extends IService<User> {
@@ -41,4 +42,17 @@ public interface UserService extends IService<User> {
      */
     User updateUserInformation(User user);
 
+    /**
+     * 新增用户信息(含用户对应的角色信息)
+     * @param user
+     * @return
+     */
+    User addUserInformation(User user);
+
+    /**
+     * 删除用户信息(清除用户角色表中的关联)
+     * @param id
+     * @return
+     */
+    boolean removeUserByIdWithRole(Serializable id);
 }

@@ -26,6 +26,8 @@ public class UserController {
     @Autowired
     private RedisUtil redisUtil;
 
+
+
     /**
      * 查询所有用户及其角色信息 不分页
      */
@@ -112,28 +114,75 @@ public class UserController {
     }
 
     /**
+     * 新增用户信息(含用户对应的角色信息)
+     * @param user
+     * @return
+     */
+    @PostMapping("/addUserInfo")
+    public ResponseEntity<Map<String, Object>> addUserInformation(@RequestBody User user) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User addedUser = userService.addUserInformation(user);
+
+            // 清除 Redis 缓存
+            redisUtil.flushDb();
+            List<User> allUsers = userService.getAllUsersWithRoles();
+            redisUtil.set("allUsers", allUsers);
+
+            response.put("message", "User saved successfully!");
+            response.put("user", addedUser);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("message", "Error occurred while saving user.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
      * 更新用户信息(包括角色信息)
      * @param user
      * @return
      */
-    @PutMapping("/UpdateUserInfo")
+    @PutMapping("/updateUserInfo")
     public ResponseEntity<Map<String, Object>> updateUserInformation(@RequestBody User user) {
         Map<String, Object> response = new HashMap<>();
         try {
             User updatedUser = userService.updateUserInformation(user);
 
-            // 清空整个 Redis 实例中的所有数据库
+            // 清除 Redis 缓存
             redisUtil.flushDb();
-            // 更新所有用户的缓存
             List<User> allUsers = userService.getAllUsersWithRoles();
             redisUtil.set("allUsers", allUsers);
 
-            response.put("message", "User saved or updated successfully!");
+            response.put("message", "User updated successfully!");
             response.put("user", updatedUser);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.put("message", "Error occurred while saving or updating user.");
+            response.put("message", "Error occurred while updating user.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * 删除用户信息(清除用户角色表中的关联)
+     *
+     * @param id 用户id
+     * @return
+     */
+    @DeleteMapping("/removeById/{id}")
+    public R removeUserByIdWithRole(@PathVariable Serializable id) {
+        System.out.println("Received ID: " + id);
+        Boolean fag = userService.removeUserByIdWithRole(id);
+
+        // 清除 Redis 缓存
+        redisUtil.flushDb();
+        List<User> allUsers = userService.getAllUsersWithRoles();
+        redisUtil.set("allUsers", allUsers);
+
+        if (fag) {
+            return R.ok("用户删除成功！");
+        } else {
+            return R.failed("用户删除失败！");
         }
     }
 
@@ -186,20 +235,5 @@ public class UserController {
 //    }
 
 
-    /**
-     * 删除用户 根据id
-     *
-     * @param id 用户id
-     * @return
-     */
-    @DeleteMapping("/removeById/{id}")
-    public R removeById(@PathVariable Serializable id) {
-        System.out.println("Received ID: " + id);
-        Boolean fag = userService.removeById(id);
-        if (fag) {
-            return R.ok("用户删除成功！");
-        } else {
-            return R.failed("用户删除失败！");
-        }
-    }
+
 }

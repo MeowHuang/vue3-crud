@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -129,6 +130,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
+     * 新增用户信息(含用户对应的角色信息)
+     * @param user
+     * @return
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED,isolation = Isolation.READ_COMMITTED,rollbackFor =Exception.class)
+    public User addUserInformation(User user) {
+        // 插入用户信息
+        user.setCreateTime(new Date()); // 设置创建时间为当前时间
+        user.setUpdateTime(null); // 设置更新时间为空，排除更新时间字段
+        userMapper.insert(user);
+
+        // 插入用户角色信息
+        String roleName = user.getRoleName();
+        if (roleName != null) {
+            Role role = roleMapper.selectOne(new QueryWrapper<Role>().eq("role_name", roleName));
+            if (role != null) {
+                UserRole userRole = new UserRole();
+                userRole.setUserId(user.getId());
+                userRole.setRoleId(role.getId());
+                userRoleMapper.insert(userRole);
+
+                user.setRoleName(role.getRoleName());// 将角色名赋值给用户对象的 roleName 字段
+            }
+        }
+
+        return user;
+    }
+
+    /**
      * 更新用户信息(含有用户对应的角色信息)
      *
      * @param user
@@ -155,6 +186,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 user.setRoleName(role.getRoleName()); // 设置返回的user中的roleName字段
             }
         }
+
         return user;
     }
+
+
+    /**
+     * 删除用户信息(清除用户角色表中的关联)
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
+    public boolean removeUserByIdWithRole(Serializable id) {
+        // 删除用户角色信息
+        QueryWrapper<UserRole> userRoleWrapper = new QueryWrapper<>();
+        userRoleWrapper.eq("user_id", id);
+        userRoleMapper.delete(userRoleWrapper);
+
+        // 删除用户信息
+        boolean result = this.removeById(id);
+
+        return result;
+    }
+
 }
