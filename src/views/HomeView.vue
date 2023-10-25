@@ -70,13 +70,13 @@
     <el-dialog v-model="dialogFormVisible" :title="dialogType==='add'?'新增':'编辑'"
                style="width:600px;border-radius: 15px">
       <el-form :model="tableForm">
-        <el-form-item label="姓名" :label-width="70">
+        <el-form-item label="姓名" :label-width="80">
           <el-input v-model="tableForm.name" autocomplete="off"/>
         </el-form-item>
         <el-form-item label="角色" :label-width="70">
           <el-input v-model="tableForm.roleName" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="邮箱" :label-width="70">
+        <el-form-item label="邮箱" :label-width="80">
           <el-input v-model="tableForm.email" autocomplete="off"/>
         </el-form-item>
         <el-form-item label="电话" :label-width="70">
@@ -85,7 +85,7 @@
         <el-form-item label="状态" :label-width="70">
           <el-input v-model="tableForm.state" autocomplete="off"/>
         </el-form-item>
-        <el-form-item label="地址" :label-width="70">
+        <el-form-item label="地址" :label-width="80">
           <el-input v-model="tableForm.address" autocomplete="off"/>
         </el-form-item>
 
