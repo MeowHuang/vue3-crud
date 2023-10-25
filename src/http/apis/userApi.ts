@@ -45,11 +45,34 @@ export const getByKeywordAndPage=(param:any)=>{
  */
 export const saveOrUpdateUser=(param:any)=>{
     return serviceRequest({
-        url:"/user/saveOrUpdate",
+        url:"/user/saveOrUpdateUser",
         method:"post",
         data:param
     })
 }
+
+export const addUserInfo=(param:any)=>{
+    return serviceRequest({
+        url:"/user/addUserInfo",
+        method:"post",
+        data:param
+    })
+}
+
+/**
+ * 更新用户信息(包括角色信息)
+ * @param param
+ * @return 返回data{message,user} status statusText headers config
+ */
+export const updateUserInfo=(param:any)=>{
+    return serviceRequest({
+        url:"/user/updateUserInfo",
+        method:"put",
+        data:param
+    })
+}
+
+
 
 /**
  * 删除用户 根据id
